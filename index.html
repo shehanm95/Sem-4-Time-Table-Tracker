@@ -26,7 +26,7 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
-        /* Standard Custom Scrollbar for WebKit (Chrome, Safari, Edge) */
+        /* Custom Dark Scrollbar for WebKit (Chrome, Safari, Edge) */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -64,21 +64,21 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            gap: 10px;
         }
 
         .container {
             width: 100%;
             max-width: 100%;
             margin: 0 auto;
-            flex-grow: 1;
             display: flex;
             flex-direction: column;
+            gap: 10px;
         }
 
         header {
             text-align: center;
             padding: 12px 10px;
-            margin-bottom: 5px;
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 10px;
@@ -88,13 +88,12 @@
         }
 
         header h1 {
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             font-weight: 700;
             background: linear-gradient(135deg, #a78bfa, #60a5fa);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 2px;
-            letter-spacing: -0.5px;
         }
 
         header p {
@@ -110,7 +109,7 @@
             border-radius: 10px;
             overflow-x: auto;
             overflow-y: auto;
-            max-height: calc(100vh - 85px);
+            max-height: 55vh;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             animation: fadeInUp 0.6s ease-out;
             cursor: grab;
@@ -142,7 +141,6 @@
             font-size: 0.8rem;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
             position: sticky;
             top: 0;
             z-index: 10;
@@ -155,18 +153,14 @@
             background: #141a26;
             z-index: 20;
             font-weight: 600;
-            min-width: 180px;
-            max-width: 220px;
+            min-width: 170px;
+            max-width: 200px;
             border-right: 2px solid var(--border-color);
-            padding-left: 1rem;
+            padding-left: 0.8rem;
         }
 
         th.subject-header {
             z-index: 30;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
         }
 
         tr:hover td {
@@ -177,10 +171,10 @@
             background-color: #1a2232;
         }
 
-        /* Custom Modern Checkbox Styling */
+        /* Checkbox Styling */
         .checkbox-group {
             display: flex;
-            gap: 6px;
+            gap: 5px;
             justify-content: center;
             align-items: center;
         }
@@ -224,35 +218,63 @@
             transform: rotate(45deg);
         }
 
-        /* Progress Bar Styling */
-        .progress-cell {
-            min-width: 150px;
-            padding-right: 1rem;
-            padding-left: 1rem;
-            position: sticky;
-            right: 0;
-            background: #141a26;
-            z-index: 15;
-            border-left: 2px solid var(--border-color);
+        /* Dedicated Progress Window Section */
+        .progress-window {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            animation: fadeInUp 0.8s ease-out;
         }
 
-        th.progress-header {
-            position: sticky;
-            right: 0;
-            z-index: 25;
-            background: #111622;
-            border-left: 2px solid var(--border-color);
+        .progress-window h2 {
+            font-size: 1.1rem;
+            color: var(--text-main);
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .progress-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .progress-table th {
+            text-align: left;
+            padding: 8px 10px;
+            background: transparent;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .progress-table td {
+            padding: 8px 10px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .progress-table td.subject-title {
+            font-weight: 600;
+            width: 30%;
+            min-width: 150px;
         }
 
         .progress-container {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            width: 100%;
         }
 
         .progress-bar-bg {
             flex-grow: 1;
-            height: 8px;
+            height: 10px;
             background: rgba(255, 255, 255, 0.08);
             border-radius: 10px;
             overflow: hidden;
@@ -268,27 +290,14 @@
         }
 
         .progress-text {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 700;
             color: var(--text-main);
-            min-width: 36px;
+            min-width: 42px;
             text-align: right;
         }
 
-        /* Responsive Tweaks */
-        @media (max-width: 768px) {
-            header h1 {
-                font-size: 1.3rem;
-            }
-            th, td {
-                padding: 0.6rem 0.4rem;
-            }
-            th.subject-header, td.subject-name {
-                min-width: 140px;
-                font-size: 0.85rem;
-            }
-        }
-
+        /* Animations */
         @keyframes fadeInDown {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -308,17 +317,33 @@
         <p>14-Week Modular Progress Dashboard</p>
     </header>
 
+    <!-- Main Schedule Table Wrapper -->
     <div class="table-wrapper" id="tableWrapper">
         <table id="trackerTable">
             <thead>
                 <tr id="headerRow">
                     <th class="subject-header">Subject</th>
-                    <!-- Week columns generated dynamically -->
-                    <th class="progress-header">Progress</th>
+                    <!-- Week columns will be generated by JS -->
                 </tr>
             </thead>
             <tbody id="tableBody">
-                <!-- Subject rows generated dynamically -->
+                <!-- Subject rows will be generated by JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Separate Progress Summary Window -->
+    <div class="progress-window">
+        <h2>📊 Overall Progress Summary</h2>
+        <table class="progress-table">
+            <thead>
+                <tr>
+                    <th>Subject</th>
+                    <th>Completion Status</th>
+                </tr>
+            </thead>
+            <tbody id="progressTableBody">
+                <!-- Progress rows will be generated by JS -->
             </tbody>
         </table>
     </div>
@@ -338,31 +363,31 @@
     const SESSIONS_PER_WEEK = 3;
     const TOTAL_SESSIONS_PER_SUBJECT = TOTAL_WEEKS * SESSIONS_PER_WEEK;
 
+    // Load saved state from localStorage using the same key
     let trackerState = JSON.parse(localStorage.getItem('semester_tracker_state')) || {};
 
     function initTable() {
         const headerRow = document.getElementById('headerRow');
         const tableBody = document.getElementById('tableBody');
-        const progressHeader = headerRow.querySelector('.progress-header');
+        const progressTableBody = document.getElementById('progressTableBody');
 
-        // Create Week Headers (Week 1 to Week 14)
+        // 1. Create Week Headers (Week 1 to Week 14)
         for (let w = 1; w <= TOTAL_WEEKS; w++) {
             const th = document.createElement('th');
             th.textContent = `W${w}`;
-            headerRow.insertBefore(th, progressHeader);
+            headerRow.appendChild(th);
         }
 
-        // Create Rows for each Subject
+        // 2. Create Rows for Main Table and Separate Progress Table
         subjects.forEach((subject, subjectIdx) => {
+            // --- Main Table Row ---
             const tr = document.createElement('tr');
 
-            // Subject Name Cell
             const tdName = document.createElement('td');
             tdName.className = 'subject-name';
             tdName.textContent = subject;
             tr.appendChild(tdName);
 
-            // Week Checkbox Cells
             for (let w = 1; w <= TOTAL_WEEKS; w++) {
                 const tdWeek = document.createElement('td');
                 const checkboxGroup = document.createElement('div');
@@ -388,11 +413,17 @@
                 tdWeek.appendChild(checkboxGroup);
                 tr.appendChild(tdWeek);
             }
+            tableBody.appendChild(tr);
 
-            // Progress Bar Cell
-            const tdProgress = document.createElement('td');
-            tdProgress.className = 'progress-cell';
-            tdProgress.innerHTML = `
+            // --- Separate Progress Window Row ---
+            const progTr = document.createElement('tr');
+            
+            const progTdName = document.createElement('td');
+            progTdName.className = 'subject-title';
+            progTdName.textContent = subject;
+
+            const progTdBar = document.createElement('td');
+            progTdBar.innerHTML = `
                 <div class="progress-container">
                     <div class="progress-bar-bg">
                         <div class="progress-bar-fill" id="progress-fill-${subjectIdx}"></div>
@@ -400,11 +431,12 @@
                     <span class="progress-text" id="progress-text-${subjectIdx}">0%</span>
                 </div>
             `;
-            tr.appendChild(tdProgress);
 
-            tableBody.appendChild(tr);
+            progTr.appendChild(progTdName);
+            progTr.appendChild(progTdBar);
+            progressTableBody.appendChild(progTr);
 
-            // Initial progress calculation
+            // Calculate initial progress
             updateProgress(subjectIdx);
         });
 
@@ -440,14 +472,13 @@
         }
     }
 
-    // Drag-to-Scroll & Mouse Wheel Scroll Enhancement
+    // Drag-to-Scroll Logic
     function setupDragToScroll() {
         const slider = document.getElementById('tableWrapper');
         let isDown = false;
         let startX;
         let scrollLeft;
 
-        // Shift + Wheel Horizontal Scrolling
         slider.addEventListener('wheel', (e) => {
             if (e.deltaY !== 0) {
                 e.preventDefault();
@@ -455,28 +486,22 @@
             }
         }, { passive: false });
 
-        // Mouse Drag Interaction
         slider.addEventListener('mousedown', (e) => {
-            if (e.target.tagName === 'INPUT') return; // Allow clicking checkboxes directly
+            if (e.target.tagName === 'INPUT') return;
             isDown = true;
             slider.classList.add('active');
             startX = e.pageX - slider.offsetLeft;
             scrollLeft = slider.scrollLeft;
         });
 
-        slider.addEventListener('mouseleave', () => {
-            isDown = false;
-        });
-
-        slider.addEventListener('mouseup', () => {
-            isDown = false;
-        });
+        slider.addEventListener('mouseleave', () => { isDown = false; });
+        slider.addEventListener('mouseup', () => { isDown = false; });
 
         slider.addEventListener('mousemove', (e) => {
             if (!isDown) return;
             e.preventDefault();
             const x = e.pageX - slider.offsetLeft;
-            const walk = (x - startX) * 1.5; // Drag sensitivity multiplier
+            const walk = (x - startX) * 1.5;
             slider.scrollLeft = scrollLeft - walk;
         });
     }
