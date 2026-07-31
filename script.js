@@ -11,16 +11,21 @@ const TOTAL_WEEKS = 14;
 const SESSIONS_PER_WEEK = 3;
 const TOTAL_SESSIONS_PER_SUBJECT = TOTAL_WEEKS * SESSIONS_PER_WEEK;
 
-// Separate Keys for LocalStorage
+// Separate Keys for LocalStorage Persistence
 const GRID_STORAGE_KEY = 'semester_tracker_state';
 const TODO_STORAGE_KEY = 'semester_todo_state';
+const NOTES_STORAGE_KEY = 'semester_notes_state';
 
 let trackerState = JSON.parse(localStorage.getItem(GRID_STORAGE_KEY)) || {};
 let todoListState = JSON.parse(localStorage.getItem(TODO_STORAGE_KEY)) || [];
+let notesState = JSON.parse(localStorage.getItem(NOTES_STORAGE_KEY)) || {};
+
+let activeNoteKey = null;
 
 function initApp() {
     initTable();
     initTodoSection();
+    initNoteModal();
 }
 
 function initTable() {
@@ -46,6 +51,11 @@ function initTable() {
 
         for (let w = 1; w <= TOTAL_WEEKS; w++) {
             const tdWeek = document.createElement('td');
+            
+            const cellGroup = document.createElement('div');
+            cellGroup.className = 'cell-content-group';
+
+            // Checkbox group
             const checkboxGroup = document.createElement('div');
             checkboxGroup.className = 'checkbox-group';
 
@@ -66,12 +76,26 @@ function initTable() {
                 checkboxGroup.appendChild(cb);
             }
 
-            tdWeek.appendChild(checkboxGroup);
+            // Note Trigger Button (Positioned right after the checkboxes)
+            const noteBtn = document.createElement('button');
+            const noteKey = `s${subjectIdx}_w${w}`;
+            noteBtn.id = `note-btn-${noteKey}`;
+            
+            updateNoteBtnStyle(noteBtn, noteKey);
+
+            noteBtn.addEventListener('click', () => {
+                openNoteModal(subject, w, noteKey);
+            });
+
+            cellGroup.appendChild(checkboxGroup);
+            cellGroup.appendChild(noteBtn);
+
+            tdWeek.appendChild(cellGroup);
             tr.appendChild(tdWeek);
         }
         tableBody.appendChild(tr);
 
-        // Progress Row
+        // Progress Summary Row
         const progTr = document.createElement('tr');
         
         const progTdName = document.createElement('td');
@@ -96,6 +120,20 @@ function initTable() {
     });
 
     setupDragToScroll();
+}
+
+function updateNoteBtnStyle(btnElement, noteKey) {
+    const hasNote = !!(notesState[noteKey] && notesState[noteKey].trim());
+    
+    if (hasNote) {
+        btnElement.className = 'note-btn has-note';
+        btnElement.title = 'View / Edit Note';
+        btnElement.innerHTML = '<span class="material-symbols-outlined">warning</span>';
+    } else {
+        btnElement.className = 'note-btn empty-note';
+        btnElement.title = 'Add Note';
+        btnElement.innerHTML = '<span class="material-symbols-outlined">check_box_outline_blank</span>';
+    }
 }
 
 function updateProgress(subjectIdx) {
@@ -128,6 +166,77 @@ function updateProgress(subjectIdx) {
 }
 
 // =========================================================
+// Weekly Note Modal Logic
+// =========================================================
+function initNoteModal() {
+    const overlay = document.getElementById('noteModalOverlay');
+    const closeBtn = document.getElementById('closeModalBtn');
+    const saveBtn = document.getElementById('saveNoteBtn');
+    const deleteBtn = document.getElementById('deleteNoteBtn');
+
+    closeBtn.addEventListener('click', closeNoteModal);
+    
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) closeNoteModal();
+    });
+
+    saveBtn.addEventListener('click', saveNote);
+    deleteBtn.addEventListener('click', deleteNote);
+}
+
+function openNoteModal(subject, weekNum, noteKey) {
+    activeNoteKey = noteKey;
+    
+    const modalTitle = document.getElementById('modalTitle');
+    const noteArea = document.getElementById('modalNoteText');
+    const overlay = document.getElementById('noteModalOverlay');
+
+    modalTitle.textContent = `Note — ${subject} (Week ${weekNum})`;
+    noteArea.value = notesState[noteKey] || '';
+
+    overlay.style.display = 'flex';
+    noteArea.focus();
+}
+
+function closeNoteModal() {
+    const overlay = document.getElementById('noteModalOverlay');
+    overlay.style.display = 'none';
+    activeNoteKey = null;
+}
+
+function saveNote() {
+    if (!activeNoteKey) return;
+
+    const noteArea = document.getElementById('modalNoteText');
+    const noteText = noteArea.value.trim();
+
+    if (noteText) {
+        notesState[activeNoteKey] = noteText;
+    } else {
+        delete notesState[activeNoteKey];
+    }
+
+    localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(notesState));
+    
+    const btn = document.getElementById(`note-btn-${activeNoteKey}`);
+    if (btn) updateNoteBtnStyle(btn, activeNoteKey);
+
+    closeNoteModal();
+}
+
+function deleteNote() {
+    if (!activeNoteKey) return;
+
+    delete notesState[activeNoteKey];
+    localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(notesState));
+
+    const btn = document.getElementById(`note-btn-${activeNoteKey}`);
+    if (btn) updateNoteBtnStyle(btn, activeNoteKey);
+
+    closeNoteModal();
+}
+
+// =========================================================
 // To-Do Section Logic
 // =========================================================
 function initTodoSection() {
@@ -136,7 +245,6 @@ function initTodoSection() {
     const addBtn = document.getElementById('addTodoBtn');
     const taskInput = document.getElementById('todoTaskInput');
 
-    // Populate Subject Options
     subjects.forEach(sub => {
         const opt = document.createElement('option');
         opt.value = sub;
@@ -144,7 +252,6 @@ function initTodoSection() {
         subjectSelect.appendChild(opt);
     });
 
-    // Populate Week Options
     for (let w = 1; w <= TOTAL_WEEKS; w++) {
         const opt = document.createElement('option');
         opt.value = `W${w}`;
@@ -179,9 +286,8 @@ function addTodoTask() {
     const selectedWeek = weekSelect.value;
     const taskText = taskInput.value.trim();
 
-    // Validation Check: Show error if Subject, Week, or Description is missing
     if (!selectedSubject || !selectedWeek || !taskText) {
-        showErrorMessage("⚠️ Please select a subject, week, and enter a task description!");
+        showErrorMessage("⚠️ කරුණාකර Subject, Week සහ Task Description යන සියල්ලම තෝරා/ඇතුළත් කරන්න!");
         return;
     }
 
@@ -196,7 +302,6 @@ function addTodoTask() {
     todoListState.push(newTask);
     saveAndRenderTodos();
 
-    // Reset inputs back to empty default
     subjectSelect.value = "";
     weekSelect.value = "";
     taskInput.value = "";
@@ -217,11 +322,11 @@ function editTodoTask(id) {
     if (!taskToEdit) return;
 
     const newText = prompt("Edit Task Description:", taskToEdit.text);
-    if (newText === null) return; // Cancelled
+    if (newText === null) return;
     
     const trimmedText = newText.trim();
     if (!trimmedText) {
-        showErrorMessage("⚠️ You cannot set an empty task description!");
+        showErrorMessage("⚠️ Task එක හිස්ව තැබිය නොහැක!");
         return;
     }
 
@@ -299,7 +404,7 @@ function setupDragToScroll() {
     }, { passive: false });
 
     slider.addEventListener('mousedown', (e) => {
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.closest('.note-btn')) return;
         isDown = true;
         slider.classList.add('active');
         startX = e.pageX - slider.offsetLeft;
